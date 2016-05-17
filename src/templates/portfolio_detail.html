@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+    <div class="jumbotron">
+      <div class="container">
+        <h1>Portfolio Holdings</h1>
+        <p>A list of all current portfolios that you have created</p>
+          {% for portfolio in portfolios %}
+          <p>{{ portfolio.portfolio_name }}</p>
+          <p>{{ portfolio.portfolio_id }}</p>
+          <p>{{ portfolio.total_value }}</p>
+        <p><a class="btn btn-primary btn-lg" href="/portfolio/{{ portfolio.portfolio_id }}/add" role="button">Add a stock</a></p>
+          <p><a class="btn btn-primary btn-lg" href="/portfolio/{{ portfolio.portfolio_id }}/update" role="button">Update</a></p>
+          <p><a class="btn btn-primary btn-lg" href="/portfolio/{{ portfolio.portfolio_id }}/delete" role="button">Delete</a></p>
+
+          {% endfor %}
+      </div>
+    </div>
+            {% with messages = get_flashed_messages() %}
+{% if messages %}
+          <h2 class="sub-header">Current Portfolio Holdings</h2>
+    <ul class=flashes>
+    {% for message in messages %}
+      <li>{{ message }}</li>
+    {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>Stock Ticker</th>
+                  <th>Number of Shares</th>
+                    <th>Last Market Price</th>
+                    <th>Add Price</th>
+                    <th>Total Amount</th>
+                    <th>Last Update</th>
+                    <th>Days in Portfolio</th>
+
+                </tr>
+              </thead>
+                {% for stock in stocks %}
+              <tbody>
+                <tr>
+                  <td>{{ stock.ticker }}</td>
+                  <td>{{ stock.qty }}</td>
+                    <td>{{ stock.current_price }}</td>
+                    <td>{{ stock.add_price }}</td>
+                    <td>{{ stock.total_price }}</td>
+                    <td>{{ stock.add_date }}</td>
+                    <td>{{ stock.days_in_portfolio }}</td>
+                </tr>
+              </tbody>
+                {% endfor %}
+            </table>
+          </div>
+
+{% endblock %}

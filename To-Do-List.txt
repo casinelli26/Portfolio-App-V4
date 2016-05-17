@@ -1,0 +1,17 @@
+1. Need to figure out how to throw an error message if the user enters an incorrect ticker, qty of shares, or if a user
+leaves these fields blank.
+    - Also need to do this for the portfolio field
+    - We will create try / except to raise an error message which will load onto the html page.
+
+    Error messages we need to make.
+    1. Stock cannot be found.
+    2. Stock is already in the database, you should update stock instead.
+    3. Stock cannot be deleted because it cannot be found.
+
+2. Need to sum the total value of all stocks in the portfolio.
+
+3. Make the template look nicer!
+
+4. Edit the portfolios so we can add / delete / update stocks.
+
+5. Edit the application so we can add / delete / remove portfolios.
