@@ -28,21 +28,25 @@ class Stock(object):
         else:
             locale.setlocale(locale.LC_ALL, '')
             company = Share(ticker)
-            add_price = company.get_price()
-            add_price = float(add_price)
-            stock = Stock(portfolio_id=self.portfolio_id,
-                          ticker=ticker,
-                          qty=qty,
-                          add_price=add_price,
-                          total_price=float(add_price) * float(qty))
-            stock.save_to_database()
+            if company is None:
+                raise StockDoesNotExist("Cannot find stock ticker")
+            else:
+                print(company)
+                add_price = company.get_price()
+                add_price = float(add_price)
+                stock = Stock(portfolio_id=self.portfolio_id,
+                              ticker=ticker,
+                              qty=qty,
+                              add_price=add_price,
+                              total_price=float(add_price) * float(qty))
+                stock.save_to_database()
 
     def update_stock_data(self, ticker, qty):
         stock_data = Database.find_one('stockdata', {"ticker": self.ticker})
-        add_price = stock_data['add_price']
         if stock_data is None:
             raise StockDoesNotExist("Stock does not exist in Database")
         else:
+            add_price = stock_data['add_price']
             Database.remove('stockdata', query={"ticker": self.ticker})
             from yahoo_finance import Share
             locale.setlocale(locale.LC_ALL, '')
