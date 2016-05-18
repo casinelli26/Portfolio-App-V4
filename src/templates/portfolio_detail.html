@@ -9,14 +9,17 @@
           {% for portfolio in portfolios %}
           <p>{{ portfolio.portfolio_name }}</p>
           <p>{{ portfolio.portfolio_id }}</p>
-          <p>{{ portfolio.total_value }}</p>
         <p><a class="btn btn-primary btn-lg" href="/portfolio/{{ portfolio.portfolio_id }}/add" role="button">Add a stock</a></p>
           <p><a class="btn btn-primary btn-lg" href="/portfolio/{{ portfolio.portfolio_id }}/update" role="button">Update</a></p>
           <p><a class="btn btn-primary btn-lg" href="/portfolio/{{ portfolio.portfolio_id }}/delete" role="button">Delete</a></p>
-
+          {% endfor %}
+            {% for data in finance_data %}
+          <p>Current Portfolio Value: {{ data.total_current_value }}</p>
+          <p>Total Percent Change in Portfolio Value: {{ data.percent_change }}</p>
           {% endfor %}
       </div>
     </div>
+
             {% with messages = get_flashed_messages() %}
 {% if messages %}
           <h2 class="sub-header">Current Portfolio Holdings</h2>
@@ -38,19 +41,20 @@
                     <th>Total Amount</th>
                     <th>Last Update</th>
                     <th>Days in Portfolio</th>
-
+                    <th>Percent Change</th>
                 </tr>
               </thead>
                 {% for stock in stocks %}
               <tbody>
                 <tr>
-                  <td>{{ stock.ticker }}</td>
+                  <td><a href="/portfolio/{{ stock.unique_ticker }}"> {{ stock.ticker }}</a></td>
                   <td>{{ stock.qty }}</td>
                     <td>{{ stock.current_price }}</td>
                     <td>{{ stock.add_price }}</td>
                     <td>{{ stock.total_price }}</td>
                     <td>{{ stock.add_date }}</td>
                     <td>{{ stock.days_in_portfolio }}</td>
+                    <td>{{ stock.percent_change }}</td>
                 </tr>
               </tbody>
                 {% endfor %}

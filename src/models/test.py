@@ -4,13 +4,15 @@ import json
 
 Database.initialize('portfolio_database')
 
-data = Database.find('stockdata', query={"portfolio_id": '602cee09f7cf42b5b3d452d2e1c119d4'})
+data = Database.find('stockdata', query={"portfolio_id": 'e59f06c6a3404195a8a2220134cddc74'})
 li = []
+li2 = []
 for obj in data:
     # value = (data['total_price'])
-    print(obj)
-    value = (obj['total_price'])
-    print(value)
+    value = (obj['add_price'])
+    value2 = (obj['qty'])
+    li2.append(value2)
     li.append(value)
 
 print(li)
+print(li2)

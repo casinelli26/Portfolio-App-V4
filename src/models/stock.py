@@ -8,7 +8,7 @@ import locale
 class Stock(object):
     def __init__(self, ticker=None, portfolio_id=None, qty=None, add_price=None,
                  add_date=datetime.datetime.now(), stock_id=None,
-                 current_price=None, total_price=None):
+                 current_price=None, total_price=None, percent_change=None):
         self.ticker = ticker if ticker is None else ticker.upper()
         self.qty = qty
         self.add_price = add_price
@@ -19,10 +19,12 @@ class Stock(object):
         self.total_price = total_price
         self.current_date = datetime.datetime.now()
         self.days_in_portfolio = str((self.current_date - self.add_date))
+        self.percent_change = percent_change
+        self.unique_ticker = self.portfolio_id + self.ticker
 
     def new_stock(self, ticker, qty):
         from yahoo_finance import Share
-        stock_data = Database.find_one(collection='stockdata', query={"ticker": self.ticker})
+        stock_data = Database.find_one(collection='stockdata', query={"ticker": self.unique_ticker})
         if stock_data is not None:
             raise StockAlreadyExist("This stock has already been entered into portfolio.")
         else:
@@ -36,18 +38,19 @@ class Stock(object):
                 add_price = float(add_price)
                 stock = Stock(portfolio_id=self.portfolio_id,
                               ticker=ticker,
-                              qty=qty,
+                              qty=float(qty),
                               add_price=add_price,
-                              total_price=float(add_price) * float(qty))
+                              total_price=float(add_price) * float(qty)
+                              )
                 stock.save_to_database()
 
     def update_stock_data(self, ticker, qty):
-        stock_data = Database.find_one('stockdata', {"ticker": self.ticker})
+        stock_data = Database.find_one('stockdata', {"ticker": self.unique_ticker})
         if stock_data is None:
             raise StockDoesNotExist("Stock does not exist in Database")
         else:
             add_price = stock_data['add_price']
-            Database.remove('stockdata', query={"ticker": self.ticker})
+            Database.remove('stockdata', query={"ticker": self.unique_ticker})
             from yahoo_finance import Share
             locale.setlocale(locale.LC_ALL, '')
             company = Share(ticker)
@@ -55,10 +58,11 @@ class Stock(object):
             update_price = float(update_price)
             stock = Stock(portfolio_id=self.portfolio_id,
                           ticker=ticker,
-                          qty=qty,
+                          qty=float(qty),
                           current_price=update_price,
                           add_price=add_price,
-                          total_price=float(update_price) * float(qty))
+                          total_price=float(update_price) * float(qty),
+                          percent_change=((float(update_price) - float(add_price)) / float(update_price)))
             stock.save_to_database()
 
     @classmethod
@@ -66,15 +70,20 @@ class Stock(object):
         stocks = Database.find(collection='stockdata', query={"portfolio_id": portfolio_id})
         return [data for data in stocks]
 
+    @classmethod
+    def find_stock_by_unique_ticker(cls, unique_ticker):
+        stocks = Database.find(collection='stockdata', query={"unique_ticker": unique_ticker})
+        return [data for data in stocks]
+
     def save_to_database(self):
         Database.insert(collection='stockdata', data=self.json())
 
     def delete_stock_data(self):
-        stock_data = Database.find_one(collection='stockdata', query={"ticker": self.ticker})
+        stock_data = Database.find_one(collection='stockdata', query={"ticker": self.unique_ticker})
         if stock_data is None:
             raise StockDoesNotExist("Stock does not exist in database")
         else:
-            Database.remove(collection='stockdata', query={"ticker": self.ticker})
+            Database.remove(collection='stockdata', query={"ticker": self.unique_ticker})
 
     def json(self):
         return {
@@ -86,5 +95,7 @@ class Stock(object):
             "add_date": self.add_date,
             "portfolio_id": self.portfolio_id,
             "total_price": self.total_price,
-            "days_in_portfolio": self.days_in_portfolio
+            "days_in_portfolio": self.days_in_portfolio,
+            "percent_change": self.percent_change,
+            "unique_ticker": self.unique_ticker
         }
